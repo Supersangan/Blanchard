@@ -1103,6 +1103,34 @@ function initBurgerMenu() {
 
 initBurgerMenu();
 
+// Header nav scroll, hiding burger
+(() => {
+  const anchors = document.querySelectorAll('.header-nav__link');
+
+  for (let anchor of anchors) {
+    anchor.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      
+      // Close menu 
+      const nav = document.querySelector('.header__nav');
+      const page = document.querySelector('.page');
+      nav.classList.remove('header__nav_unwrapped');
+
+      toggleInertExeptThis(nav);
+      page.classList.remove('page_overflowed');
+      
+      const id = anchor.getAttribute('href').substr(2);
+
+      console.log(id);
+
+      document.getElementById(id).scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    })
+  }
+})();
+
 // Search
 function initSearch() {
   const searchOpener = document.querySelector('.search-opener');
