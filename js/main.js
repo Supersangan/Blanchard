@@ -1121,8 +1121,6 @@ initBurgerMenu();
       
       const id = anchor.getAttribute('href').substr(2);
 
-      console.log(id);
-
       document.getElementById(id).scrollIntoView({
         behavior: 'smooth',
         block: 'start'
