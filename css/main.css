@@ -1007,7 +1007,8 @@ ul {
   color: transparent;
 }
 
-.search__input:hover {
+.search__input:hover ,
+.search__button:focus ~ .search__input {
   border-bottom-color: var(--purple-c2);
 }
 
