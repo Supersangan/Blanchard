@@ -2045,7 +2045,7 @@ ul {
   opacity: 0;
   visibility: hidden;
   background-color: var(--black-transparent-05);
-  background-image: url('/img/magnifier.svg');
+  background-image: url('../img/magnifier.svg');
   background-position: center center;
   background-repeat: no-repeat;
   background-size: 81px auto;

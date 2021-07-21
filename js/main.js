@@ -973,7 +973,7 @@ function init() {
     },
     {
       iconLayout: 'default#image',
-      iconImageHref: '../img/map-pointer.png',
+      iconImageHref: './img/map-pointer.png',
       iconImageSize: [20, 20],
       iconImageOffset: [-10, -10],
     }
