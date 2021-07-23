@@ -287,97 +287,28 @@ initGalleryPopup();
 
 // Catalog
 (() => {
-  // Persons lists resizing
-  (function adaptiveResizingCatalogPersons() {
-    const personsWrappers = document.querySelectorAll('.catalog-viewer-nav__inner');
-    const tabs = document.querySelectorAll('.catalog-viewer__nav');
-
-    for (const tab of tabs) {
-      tab.style.display = 'block';
-    }
-
-    for (const wrapper of personsWrappers) {
-      const personsList = wrapper.firstElementChild;
-      const persons = personsList.querySelectorAll('.catalog-viewer-nav__person, .catalog-viewer-nav__default');
-      const personsStyle = window.getComputedStyle(personsList, null);
-      const wrapperPaddings = parseInt(personsStyle.getPropertyValue('padding-top')) + parseInt(personsStyle.getPropertyValue('padding-bottom'));
-
-      wrapper.style.display = 'block';
-
-      if (window.innerWidth < 768) {
-
-        personsList.style.maxHeight = wrapper.scrollHeight + 'px';
-
-      } else if (window.innerWidth >= 768 && window.innerWidth < 1024) {
-
-        if (wrapper.style.maxHeight === '') {
-          const wrapperMaxHeight = (
-            Math.floor(persons.length / 3)
-            + (persons.length % 3)
-          )
-            * persons[0].scrollHeight
-            + wrapperPaddings
-            + 1;
-
-          personsList.style.maxHeight = wrapperMaxHeight + 'px';
-        }
-
-      } else if (window.innerWidth >= 1024 && window.innerWidth < 1920) {
-
-        if (wrapper.style.maxHeight === '') {
-          const wrapperMaxHeight = (
-            Math.floor(persons.length / 2)
-            + (persons.length % 2)
-          )
-            * persons[0].scrollHeight
-            + wrapperPaddings
-            + 1;
-
-          personsList.style.maxHeight = wrapperMaxHeight + 'px';
-        }
-
-      } else if (window.innerWidth >= 1920) {
-
-        if (wrapper.style.maxHeight === '') {
-          const wrapperMaxHeight = (
-            Math.floor(persons.length / 3)
-            + (persons.length % 3)
-          )
-            * persons[0].scrollHeight
-            + wrapperPaddings
-            + 1;
-
-          personsList.style.maxHeight = wrapperMaxHeight + 'px';
-        }
-
-      }
-
-      wrapper.style.display = null;
-    }
-
-    for (const tab of tabs) {
-      tab.style.display = null;
-    }
-  })();
-
+  // Catalog tabs
   // Unwrap first accordions
   (() => {
     const tabs = document.querySelectorAll('.catalog-viewer__nav');
     for (const tab of tabs) {
+      tab.style.display = 'block';
+
       const accordion = tab.querySelector('.catalog-viewer-nav__inner');
-
       accordion.style.display = 'block';
+      const reflow = accordion.offsetHeight;
       accordion.classList.add('catalog-viewer-nav__inner_active');
-      accordion.style.maxHeight = accordion.querySelector('.catalog-viewer-nav__persons').style.maxHeight;
+      accordion.style.maxHeight = accordion.scrollHeight + 'px';
 
-      const button = accordion.previousElementSibling.ariaExpanded = true;
+      tab.style.display = null;
+
+      accordion.previousElementSibling.classList.add('catalog-viewer-nav__button_active');
+      accordion.previousElementSibling.ariaExpanded = true;
     }
   })();
 
-  // Catalog tabs
-  // Tabs
+  // Show initial tab
   (() => {
-    // Show initial tab
     const flag = document.querySelector('.catalog-tabs__flag');
     activateLang(flag, true);
   })();
@@ -542,11 +473,12 @@ initGalleryPopup();
     const activeAccordion = button.parentElement.querySelector('.catalog-viewer-nav__inner_active');
     if (activeAccordion) {
       activeAccordion.classList.remove('catalog-viewer-nav__inner_active');
-      activeAccordion.style.maxHeight = 0;
+      activeAccordion.style.maxHeight = null;
 
       activeAccordion.removeEventListener('transitionend', activeAccordionListener);
       activeAccordion.addEventListener('transitionend', activeAccordionListener);
 
+      activeAccordion.previousElementSibling.classList.remove('catalog-viewer-nav__button_active');
       activeAccordion.previousElementSibling.ariaExpanded = false;
     }
 
@@ -563,12 +495,13 @@ initGalleryPopup();
     accordion.style.display = 'block';
     const reflow = accordion.offsetHeight;
     accordion.classList.add('catalog-viewer-nav__inner_active');
-    accordion.style.maxHeight = accordion.querySelector('.catalog-viewer-nav__persons').style.maxHeight;
+    accordion.style.maxHeight = accordion.scrollHeight + 'px';
 
     accordion.removeEventListener('transitionend', accordionListener);
     accordion.addEventListener('transitionend', accordionListener);
 
-    button.ariaExpanded = true;
+    accordion.previousElementSibling.classList.add('catalog-viewer-nav__button_active');
+    accordion.previousElementSibling.ariaExpanded = true;
 
     // Resizing nav wrapper
     function accordionListener(ev) {
@@ -584,7 +517,6 @@ initGalleryPopup();
       }
     }
   }
-
 })();
 
 
@@ -1066,9 +998,9 @@ function getSiblings(el) {
 // Burger menu
 function initBurgerMenu() {
   const opener = document.querySelector('.header__burger');
-  const nav = document.querySelector('.header__nav');
+  const nav = document.querySelector('.header__navigation');
   const page = document.querySelector('.page');
-  const closer = document.querySelector('.header-nav__closer');
+  const closer = document.querySelector('.header-navigation__closer');
 
   opener.addEventListener('click', openNav);
   closer.addEventListener('click', closeNav);
@@ -1076,7 +1008,7 @@ function initBurgerMenu() {
   function openNav() {
     nav.style.display = 'block';
     const reflow = nav.offsetHeight;
-    nav.classList.add('header__nav_unwrapped');
+    nav.classList.add('header__navigation_unwrapped');
     nav.removeEventListener('transitionend', transitionListener);
 
     toggleInertExeptThis(nav);
@@ -1085,7 +1017,7 @@ function initBurgerMenu() {
   }
 
   function closeNav() {
-    nav.classList.remove('header__nav_unwrapped');
+    nav.classList.remove('header__navigation_unwrapped');
     nav.addEventListener('transitionend', transitionListener);
 
     toggleInertExeptThis(nav);
@@ -1105,16 +1037,16 @@ initBurgerMenu();
 
 // Header nav scroll, hiding burger
 (() => {
-  const anchors = document.querySelectorAll('.header-nav__link');
+  const anchors = document.querySelectorAll('.header-navigation__link');
 
   for (let anchor of anchors) {
     anchor.addEventListener('click', (ev) => {
       ev.preventDefault();
       
       // Close menu 
-      const nav = document.querySelector('.header__nav');
+      const nav = document.querySelector('.header__navigation');
       const page = document.querySelector('.page');
-      nav.classList.remove('header__nav_unwrapped');
+      nav.classList.remove('header__navigation_unwrapped');
 
       toggleInertExeptThis(nav);
       page.classList.remove('page_overflowed');
