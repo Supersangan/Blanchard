@@ -942,11 +942,11 @@ JustValidate = new window.JustValidate('.contacts__form', {
   messages: {
     customName: {
       required: 'Укажите Ваше имя',
-      maxLength: 'Имя указано некорректно',
+      maxLength: 'Недопустимый формат',
     },
     customPhone: {
       required: 'Укажите Ваш телефон',
-      function: 'Телефон указан некорректно',
+      function: 'Недопустимый формат',
     },
   },
   submitHandler: function (form) {
