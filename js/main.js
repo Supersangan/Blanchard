@@ -107,20 +107,26 @@ function changeHeroBG() {
     if (bg.classList.contains('hero__bg_active')) {
       activeIndex = i;
       bg.classList.remove('hero__bg_active');
+
+      setTimeout(() => {
+        bg.classList.remove('hero__bg_scale');
+      }, 3000);
     }
   });
 
   if (activeIndex < bgs.length - 1) {
     bgs[activeIndex + 1].classList.add('hero__bg_active');
+    bgs[activeIndex + 1].classList.add('hero__bg_scale');
   } else {
     bgs[0].classList.add('hero__bg_active');
+    bgs[0].classList.add('hero__bg_scale');
   }
 }
 
 initHeroBG();
 
 // Choices
-var choicesGallery = new Choices('.gallery__select', {
+let choicesGallery = new Choices('.gallery__select', {
   silent: true,
   searchEnabled: false,
   itemSelectText: '',
@@ -131,16 +137,16 @@ var choicesGallery = new Choices('.gallery__select', {
 
 // hide selected from accessability
 choicesGallery.passedElement.element.addEventListener('showDropdown', function (ev) {
-  var items = choicesGallery.dropdown.element.querySelectorAll('[data-choice]');
-  var selectedItem = choicesGallery.dropdown.element.querySelector('[data-id="' + choicesGallery.getValue().choiceId + '"]');
-  var firstSelectableItem = choicesGallery.dropdown.element.querySelector('[data-choice-selectable]');
+  let items = choicesGallery.dropdown.element.querySelectorAll('[data-choice]');
+  let selectedItem = choicesGallery.dropdown.element.querySelector('[data-id="' + choicesGallery.getValue().choiceId + '"]');
+  let firstSelectableItem = choicesGallery.dropdown.element.querySelector('[data-choice-selectable]');
 
   // make selected item not selectable
 });
 
 
 // Swiper in gallery
-var gallerySwiper = new Swiper('.gallery-slider', {
+let gallerySwiper = new Swiper('.gallery-slider', {
   a11y: false,
   direction: 'horizontal',
   swipeHandler: '.gallery-slider__wrapper',
@@ -205,7 +211,7 @@ var gallerySwiper = new Swiper('.gallery-slider', {
   on: {
     breakpoint: function (swiper) {
       if (swiper.currentBreakpoint === '320') {
-        for (var slide of swiper.slides) {
+        for (let slide of swiper.slides) {
           slide.style.marginTop = null;
         }
       }
@@ -234,7 +240,7 @@ function initGalleryPopup() {
   });
 
   function showPopup(id) {
-    var closer;
+    let closer;
 
     if (document.querySelector(`.gallery-overlay__card[data-popup-id="${id}"]`) === null) {
       throw 'Данные для карточки не найдены';
@@ -296,7 +302,7 @@ initGalleryPopup();
 (() => {
   // Catalog tabs
   // Unwrap first accordions
-  (() => {
+  window.addEventListener('load', () => {
     const tabs = document.querySelectorAll('.catalog-viewer__nav');
     for (const tab of tabs) {
       tab.style.display = 'block';
@@ -312,13 +318,26 @@ initGalleryPopup();
       accordion.previousElementSibling.classList.add('catalog-viewer-nav__button_active');
       accordion.previousElementSibling.ariaExpanded = true;
     }
-  })();
+  });
+
+  // Resize wrappers on window resizing
+  window.addEventListener('resize', () => {
+    // Resize nav wrapper
+    const navWrapper = document.querySelector('.catalog-viewer__nav-wrapper');
+    const tab = document.querySelector('.catalog-viewer__nav_active');
+    navWrapper.style.height = tab.scrollHeight + 'px';
+    
+    // Resize persons wrapper
+    const personsWrapper = document.querySelector('.catalog-viewer__persons-wrapper');
+    const person = document.querySelector('.catalog-viewer__person_active');
+    personsWrapper.style.height = person.scrollHeight + 'px';
+  });
 
   // Show initial tab
-  (() => {
+  window.addEventListener('load', () => {
     const flag = document.querySelector('.catalog-tabs__flag');
     activateLang(flag, true);
-  })();
+  });
 
   // Change tabs
   const flags = document.querySelectorAll('.catalog-tabs__flag');
@@ -415,14 +434,14 @@ initGalleryPopup();
       activePerson.classList.remove('catalog-viewer__person_active');
 
       if (activePerson.dataset.id != id) {
-        activePerson.removeEventListener('transitionend', personListener);
-        activePerson.addEventListener('transitionend', personListener);
+        activePerson.removeEventListener('transitionend', personHideListener);
+        activePerson.addEventListener('transitionend', personHideListener);
 
-        function personListener(ev) {
+        function personHideListener(ev) {
           const activePerson = ev.currentTarget;
 
           if (ev.target === activePerson) {
-            activePerson.removeEventListener('transitionend', personListener);
+            activePerson.removeEventListener('transitionend', personHideListener);
             activePerson.style.display = null;
           }
         }
@@ -433,10 +452,21 @@ initGalleryPopup();
     const person = document.querySelector(`.catalog-viewer__person[data-id="${id}"]`);
     const personsWrapper = document.querySelector('.catalog-viewer__persons-wrapper');
 
+    person.removeEventListener('transitionend', personShowListener);
+    person.addEventListener('transitionend', personShowListener);
     person.style.display = 'block';
     const reflow = person.offsetHeight;
     person.classList.add('catalog-viewer__person_active');
-    personsWrapper.style.height = person.scrollHeight + 'px';
+    
+    function personShowListener(ev) {
+      const personsWrapper = document.querySelector('.catalog-viewer__persons-wrapper');
+      const person = ev.currentTarget;
+
+      if (ev.target === person) {
+        person.removeEventListener('transitionend', personShowListener);
+        personsWrapper.style.height = person.scrollHeight + 'px';
+      }
+    }
 
     // Highlight person link
     // Unhighlight previous link 
@@ -535,7 +565,7 @@ function initEvents() {
   const sliderContainer = document.querySelector('.events__slider');
   const showMoreButton = document.querySelector('.events__more');
 
-  adaptiveToggleEventsSwiper();
+  window.addEventListener('load', adaptiveToggleEventsSwiper);
   window.addEventListener('resize', adaptiveToggleEventsSwiper);
 
   function adaptiveToggleEventsSwiper() {
@@ -552,10 +582,8 @@ function initEvents() {
       if (eventsSwiper != undefined) {
         eventsSwiper.destroy(true, true);
       }
-
-      setTimeout(() => {
-        initEventsWrapper();  
-      }, 300);
+        
+    initEventsWrapper();
     }
   }
 
@@ -938,17 +966,19 @@ initPartnersSlider();
 // Yandex map
 ymaps.ready(init);
 function init() {
-  var coordinates = [55.75342035339826, 37.646919012897484];
-  var myMap = new ymaps.Map('map', {
+  let coordinates = [55.75342035339826, 37.646919012897484];
+  let myMap = new ymaps.Map('map', {
     center: coordinates,
     zoom: 16,
-    controls: []
+    controls: [],
   });
 
-  var myPlacemark = new ymaps.Placemark(
+  myMap.behaviors.disable('scrollZoom');
+  myMap.behaviors.disable('drag');
+
+  let myPlacemark = new ymaps.Placemark(
     coordinates,
     {
-
     },
     {
       iconLayout: 'default#image',
@@ -957,15 +987,33 @@ function init() {
       iconImageOffset: [-10, -10],
     }
   );
-
   myMap.geoObjects.add(myPlacemark);
 
-  myMap.behaviors.disable('scrollZoom');
-  myMap.behaviors.disable('drag');
+  let zoomControl = new ymaps.control.ZoomControl({
+    options: {
+      float: 'none',
+      size: "small",
+      position: {top: myMap.container._mapSize[1] * 0.4, right: 10},
+    }
+  });
+  myMap.controls.add(zoomControl);
+
+  let geolocationControl = new ymaps.control.GeolocationControl({
+    options: {
+      float: 'none',
+      position: {top: myMap.container._mapSize[1] * 0.4 + 75, right: 10},
+    }
+  });
+  myMap.controls.add(geolocationControl);
+
+  myMap.events.add('sizechange', (ev) => {
+    zoomControl.options.set('position', {top: myMap.container._mapSize[1] * 0.4, right: 10});
+    geolocationControl.options.set('position', {top: myMap.container._mapSize[1] * 0.4 + 75, right: 10});
+  });
 }
 
 // Inputmask
-var selector = document.querySelector('.contacts-form__input[name="phone"]');
+let selector = document.querySelector('.contacts-form__input[name="phone"]');
 Inputmask({
   'mask': '+7 (999) 999-99-99',
   placeholder: "_"
@@ -981,7 +1029,7 @@ JustValidate = new window.JustValidate('.contacts__form', {
     customPhone: {
       required: true,
       function: () => {
-        var phone = selector.inputmask.unmaskedvalue();
+        let phone = selector.inputmask.unmaskedvalue();
         return phone.length === 10;
       }
     },
@@ -1028,8 +1076,8 @@ function toggleInertExeptThis(el) {
 }
 
 function getSiblings(el) {
-  var siblings = [];
-  var sibling = el.parentElement.firstChild;
+  let siblings = [];
+  let sibling = el.parentElement.firstChild;
 
   while (sibling) {
     if (sibling.nodeType === 1 && sibling != el) {
