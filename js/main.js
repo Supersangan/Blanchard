@@ -465,6 +465,12 @@ initGalleryPopup();
       if (ev.target === person) {
         person.removeEventListener('transitionend', personShowListener);
         personsWrapper.style.height = person.scrollHeight + 'px';
+
+        // Lazy load image height fixing
+        const personImage = person.querySelector('.person__image');
+        personImage.addEventListener('load', () => {
+          personsWrapper.style.height = person.scrollHeight + 'px';
+        });
       }
     }
 
