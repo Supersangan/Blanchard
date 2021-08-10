@@ -1552,10 +1552,32 @@ ul {
 }
 
 @keyframes scale {
-  from {
+  0% {
+    transform: scale(1.05);
+  }
+  10% {
     transform: scale(1);
   }
-  to {
+  30% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.1);
+  }
+}
+
+.hero__bg_start-scale:not(.hero__bg_scale) {
+  animation: start-scale 13s ease;
+}
+
+@keyframes start-scale {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1);
+  }
+  100% {
     transform: scale(1.1);
   }
 }
